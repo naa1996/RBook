@@ -1,10 +1,16 @@
+{% load static %}
+{% load bootstrap4 %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>{{ title }}</title><!-- Настройка viewport -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="{% static 'todo/main.css' %}"/>
+    {% bootstrap_css %}
+    {% bootstrap_javascript jquery='full' %}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+
 
 </head>
     <body>
@@ -13,9 +19,9 @@
                 <div id="main">
                     <header>
                         <nav class="navbar navbar-expand-lg navbar-light bg-light">
-                            <a class="navbar-brand" style="height: 50px; width: 120px; margin-right: 100px"  href="#">
-                                <img src="#" width="100%" height="100%" class="d-inline-block align-top" alt="" />
-                                    </a>
+{#                            <a class="navbar-brand" style="height: 50px; width: 120px; margin-right: 100px"  href="#">#}
+{#                                <img src="#" width="100%" height="100%" class="d-inline-block align-top" alt="" />#}
+{#                                    </a>#}
                                         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                                         <span class="navbar-toggler-icon"></span>
                                         </button>
@@ -35,46 +41,104 @@
                                                     <a class="nav-link" href="{% url 'request' %}">ЗАЯВКИ</a>
                                                 </li>
                                                 <li class="nav-item 2">
-                                                    <a class="nav-link" href=href="{% url 'formalization' %}">ОФОРМЛЕНИЕ</a>
+                                                    <a class="nav-link" href="{% url 'formalization' %}">ОФОРМЛЕНИЕ</a>
                                                 </li>
                                             </ul>
                                         </div>
+{#                                        {% if filter %}#}
+                                        <form class="form-inline my-2 my-lg-0" method="GET" action="searchFormalization">
+{#                                            {% bootstrap_form filter.form layout='inline' %}#}
+{#                                            {% bootstrap_button 'Поиск' %}#}
+                                            {% csrf_token %}
+                                            <input class="form-control mr-sm-2" name='searchF' type="text" placeholder="Поиск" aria-label="Search">
+                                            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Поиск</button>
+                                        </form>
+{#                                        {% endif %}#}
+{#                                        {% render_table table 'django_tables2/formalization.html' %}#}
                         </nav>
                     </header>
                 </div>
             </div>
         </header>
         <h1>Оформленные книги</h1>
+{#        {% if(Filter_list) %}#}
         <div><ul>
-            <li><div>
-                <table><tbody>
+            <div>
+                <table class="table table-bordered"><tbody>
                     <tr>
+{#                        <th>ID</th>#}
                         <th>Название книги</th>
                         <th>Количество</th>
+                        <th>Стоимость</th>
+                        <th>Итоговая стоимость</th>
                         <th>Клиент</th>
                         <th>Сотрудник</th>
                         <th>Статус</th>
+                        <th>СтатусИзменение</th>
+                        <th>Редактирование</th>
+                        <th>Дата</th>
+
                     </tr>
                     {% for todolist in List_todo3 %}
                     <tr>
+{#                        <td>{{ todolist.id }}</td>#}
                         <td>{{ todolist.books }}</td>
                         <td>{{ todolist.quantity }}</td>
+                        <td>{{ todolist.cost }}</td>
+                        <td>{{ todolist.total_cost }}</td>
                         <td>{{ todolist.client }}</td>
                         <td>{{ todolist.employee }}</td>
                         <td>{{ todolist.status }}</td>
+                        <form action="updateFormalization" class="form-control" enctype="multipart/form-data" method="POST">
+                                {% csrf_token %}
+                                <td>
+									<select name="status1">
+										<option value="1">Оформлен</option>
+										<option value="2">Не оплачено</option>
+									</select>
+{#                                        Никогда не делай одинаковые имена, те которые name="" #}
+									</td>
+									<td>
+                                    <input type="`text`" name="id_post" value="{{ todolist.id }}" disable hidden>
+									<input type="text" name="date1" value="{{ todolist.date }}" disable hidden>
+{#                                    <input type="text" name="status1" value="{{ templates.status1 }}" disable hidden>#}
+									<input type="submit" name="delete" value="Редактировать">
+                                </td>
+                        </form>
+                        <td>{{ todolist.date }}</td>
+{#                        </td>#}
                     </tr>
                     {% endfor %}
                 </tbody></table>
-            </div></li>
+            </div>
         </ul>
         </div>
+{#        {% endif %}#}
         <h3>Добавить покупку</h3>
-        <div>
-            <form method="post">
-                {% csrf_token %}
-                {{ create_form3 }}
-                <input type="submit" value="Отправить">
-            </form>
+        <div class="row">
+            <div class="col-5">
+                <form method="post" class= "form-control" action="quantityFormalization" value="">
+                    {% csrf_token %}
+                    {% bootstrap_form create_form3 layout='horizontal' %}
+                    <p><label for="id_dateF">Дата:</label>
+                    <input
+                            type="datetime-local"
+                            value="27-02-2018T21:10"
+                            name="dateF"
+                            id="id_dateF"
+                            pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"></p>
+                    {% buttons %}
+                    <input class="btn btn-primary" type="submit" value="Отправить">
+                    {% endbuttons %}
+                </form>
+
+            </div>
+        {% for massage in messages %}
+            <ul class="{{ massage.tags }}">
+                {% if 'safe' in massage.tags %}{{ massage|safe }}{% else %}{{ massage }}{% endif %}
+            </ul>
+        {% endfor %}
         </div>
+        <h3></h3>
     </body>
 </html>
