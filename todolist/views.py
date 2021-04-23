@@ -100,7 +100,7 @@ def deleteClient(request):
     w = models.Clients.objects.get(id = int(request.POST['id_del']))
     form = forms.TodoFormCl(request.POST)
     ss = Clients._meta._get_fields()
-    # print('ss', ss)
+    print('ss', ss)
     if request.method == 'POST':
         models.Clients.objects.filter(id = int(request.POST['id_del'])).delete()
         # w =models.Formalization.objects.get(id = int(request.POST['id_del']))
@@ -302,9 +302,8 @@ def quantityFormalization(request):
     if request.method == 'POST':
         f = Books.objects.filter(id=idd).first()
         ff = forms.TodoFormF(request.POST)
-        if (f.number_of_copies > quantity1):
-            if f is not None and ff.is_valid():  # & (f.number_of_copies != 0):
-                if (f.number_of_copies != 0) and (f.number_of_copies > 0) and (f.number_of_copies != [-1]):
+        if f is not None and ff.is_valid():  # & (f.number_of_copies != 0):
+            if (f.number_of_copies != 0) and (f.number_of_copies > 0) and (f.number_of_copies != [-1]):
                     ss = Books._meta._get_fields()
                     ss1 = Formalization._meta._get_fields()
                     #количество экземпляров
@@ -330,12 +329,12 @@ def quantityFormalization(request):
 
                     return redirect('formalization')
 
-                else:
-                    messages.error(request, 'Книги нет в наличии', extra_tags='safe')
             else:
-                messages.error(request, 'Книги нет в наличии', extra_tags='safe')
+                    messages.error(request, 'Книги нет в наличии', extra_tags='safe')
         else:
-            messages.error(request, 'Количество книг не такое большое', extra_tags='safe')
+                messages.error(request, 'Книги нет в наличии', extra_tags='safe')
+        # else:
+        #     messages.error(request, 'Количество книг не такое большое', extra_tags='safe')
 
         return redirect('formalization')
 
@@ -408,19 +407,19 @@ def createRegister(request):
     #для добавления сотрудника
     if request.method == 'POST':
         user_form = forms.UserRegistration(request.POST)
+        users_form = forms.TodoFormE()
         if user_form.is_valid():
             # Create a new user object but avoid saving it yet
             new_user = user_form.save(commit=False)
-            print('dd', new_user)
             # Set the chosen password
             new_user.set_password(user_form.cleaned_data['password'])
             # Save the User object
             new_user.save()
-            print('ss', new_user)
-            return render(request, 'register', {'new_user': new_user, 'user_form': user_form, 'title': 'Регистрация'})
-            messages5.error(request, 'Регистрация прошла успешно', extra_tags='safe')
+            # return render(request, 'registration/register.html', {'new_user': new_user, 'user_form': user_form, 'users_form': users_form, 'title': 'Регистрация'})
+            # messages5.error(request, 'Регистрация прошла успешно', extra_tags='safe')
 
         return redirect('register')
+
         # user_form = forms.UserRegistration()
         # return render(request, 'register.html', {'user_form': user_form, 'title': 'Регистрация'})
         # messages5.error(request, 'Регистрация НЕ прошла', extra_tags='safe')
