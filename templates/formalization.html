@@ -31,6 +31,7 @@
                                                 <li class="nav-item active">
                                                     <a class="nav-link" href="{% url 'index' %}">ГЛАВНАЯ<span class="sr-only">(current)</span></a>
                                                 </li>
+                                                {% if request.user.is_authenticated %}
                                                 <li class="nav-item 2">
                                                     <a class="nav-link" href="{% url 'book' %}">КНИГИ</a>
                                                 </li>
@@ -43,6 +44,21 @@
                                                 <li class="nav-item 2">
                                                     <a class="nav-link" href="{% url 'formalization' %}">ОФОРМЛЕНИЕ</a>
                                                 </li>
+                                                {% endif %}
+                                                {% if request.user.is_authenticated %}
+                                                <li class="nav-item 2">
+                                                    <a class="nav-link" href="{% url 'logout' %}">ВЫЙТИ</a>
+                                                </li>
+                                                    {% if request.user.is_superuser %}
+                                                        <li class="nav-item 2">
+                                                            <a class="nav-link" href="{% url 'register' %}">РЕГИСТРАЦИЯ</a>
+                                                        </li>
+                                                    {% endif %}
+                                                {% else %}
+                                                <li class="nav-item 2">
+                                                    <a class="nav-link" href="{% url 'login' %}">ВОЙТИ</a>
+                                                </li>
+                                                {% endif %}
                                             </ul>
                                         </div>
 {#                                        {% if filter %}#}
@@ -77,7 +93,9 @@
                         <th>СтатусИзменение</th>
                         <th>Редактирование</th>
                         <th>Дата</th>
-
+                        {% if request.user.is_superuser %}
+                        <th>Удалить</th>
+                        {% endif %}
                     </tr>
                     {% for todolist in List_todo3 %}
                     <tr>
@@ -106,7 +124,17 @@
                                 </td>
                         </form>
                         <td>{{ todolist.date }}</td>
-{#                        </td>#}
+                        {% if request.user.is_superuser %}
+                            <form action="deleteFormalization" class="form-control" enctype="multipart/form-data" method="POST">
+                            {% csrf_token %}
+                            <td>
+                                <input type="`text`" name="id_del" value="{{ todolist.id }}" disable hidden>
+                                <input type="text" name="date2" value="{{ todolist.date }}" disable hidden>
+{#                              <input type="text" name="status1" value="{{ templates.status1 }}" disable hidden>#}
+                                <input type="submit" name="delete" value="Удалить">
+                            </td>
+                            </form>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                 </tbody></table>

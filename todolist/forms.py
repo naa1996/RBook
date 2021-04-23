@@ -2,6 +2,8 @@ from django import forms
 # from models import Expenditure
 from django.core import validators
 from . import models, views
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 
 
 class TodoForm(forms.Form):
@@ -56,6 +58,29 @@ class TodoFormF(forms.Form):
     # widgets = {
     #     'dateL': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
     # }
+
+
+class TodoFormE(forms.Form):
+    surname = forms.CharField(label='Фамилия')
+    name = forms.CharField(label='Имя')
+    telephone = forms.CharField(label='Телефон')
+    residence_address = forms.CharField(label='Адрес')
+
+
+class UserRegistration(UserCreationForm):
+    password = forms.CharField(label='Пароль', widget=forms.PasswordInput)
+    password2 = forms.CharField(label='Повторный пароль', widget=forms.PasswordInput)
+
+    class Meta:
+        model = User
+        fields = ('username', 'first_name', 'email')
+
+
+def clean_password2(self):
+    cd = self.cleaned_data
+    if cd['password'] != cd['password']:
+        raise forms.ValidationError('Пароли не совпадают')
+    return cd['password']
 
 
 # class TodoFormSt(forms.Form):

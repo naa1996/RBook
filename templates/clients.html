@@ -26,11 +26,12 @@
                                         <span class="navbar-toggler-icon"></span>
                                         </button>
 
-                                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                                       <div class="collapse navbar-collapse" id="navbarSupportedContent">
                                             <ul class="navbar-nav mr-auto">
                                                 <li class="nav-item active">
                                                     <a class="nav-link" href="{% url 'index' %}">ГЛАВНАЯ<span class="sr-only">(current)</span></a>
                                                 </li>
+                                                {% if request.user.is_authenticated %}
                                                 <li class="nav-item 2">
                                                     <a class="nav-link" href="{% url 'book' %}">КНИГИ</a>
                                                 </li>
@@ -43,6 +44,21 @@
                                                 <li class="nav-item 2">
                                                     <a class="nav-link" href="{% url 'formalization' %}">ОФОРМЛЕНИЕ</a>
                                                 </li>
+                                                {% endif %}
+                                                {% if request.user.is_authenticated %}
+                                                <li class="nav-item 2">
+                                                    <a class="nav-link" href="{% url 'logout' %}">ВЫЙТИ</a>
+                                                </li>
+                                                    {% if request.user.is_superuser %}
+                                                        <li class="nav-item 2">
+                                                            <a class="nav-link" href="{% url 'register' %}">РЕГИСТРАЦИЯ</a>
+                                                        </li>
+                                                    {% endif %}
+                                                {% else %}
+                                                <li class="nav-item 2">
+                                                    <a class="nav-link" href="{% url 'login' %}">ВОЙТИ</a>
+                                                </li>
+                                                {% endif %}
                                             </ul>
                                         </div>
                                         <form class="form-inline my-2 my-lg-0" method="GET" action="searchClients">
@@ -66,6 +82,9 @@
                         <th>Имя</th>
                         <th>Адрес проживания</th>
                         <th>Телефон</th>
+                        {% if request.user.is_superuser %}
+                        <th>Удалить</th>
+                        {% endif %}
                     </tr>
                     {% for todolist in List_todo1 %}
                     <tr>
@@ -73,6 +92,17 @@
                         <td>{{ todolist.name }}</td>
                         <td>{{ todolist.residence_address }}</td>
                         <td>{{ todolist.telephone }}</td>
+                        {% if request.user.is_superuser %}
+                            <form action="deleteClient" class="form-control" enctype="multipart/form-data" method="POST">
+                            {% csrf_token %}
+                            <td>
+                                <input type="`text`" name="id_del" value="{{ todolist.id }}" disable hidden>
+                                <input type="text" name="date2" value="{{ todolist.date }}" disable hidden>
+{#                              <input type="text" name="status1" value="{{ templates.status1 }}" disable hidden>#}
+                                <input type="submit" name="delete" value="Удалить">
+                            </td>
+                            </form>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                 </tbody></table>

@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{ title }}</title><!-- Настройка viewport -->
+    <title>Авторизация</title><!-- Настройка viewport -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="stylesheet" href="{% static 'todo/main.css' %}"/>
     {% bootstrap_css %}
@@ -61,79 +61,39 @@
                                                 {% endif %}
                                             </ul>
                                         </div>
-                                        <form class="form-inline my-2 my-lg-0" method="GET" action="searchBooks">
+{#                                        <form class="form-inline my-2 my-lg-0" method="GET" action="searchBooks">#}
 {#                                            {% bootstrap_form filter.form layout='inline' %}#}
 {#                                            {% bootstrap_button 'Поиск' %}#}
-                                            {% csrf_token %}
-                                            <input class="form-control mr-sm-2" name='searchB' type="text" placeholder="Поиск" aria-label="Search">
-                                            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Поиск</button>
-                                        </form>
+{#                                            {% csrf_token %}#}
+{#                                            <input class="form-control mr-sm-2" name='searchB' type="text" placeholder="Поиск" aria-label="Search">#}
+{#                                            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Поиск</button>#}
+{#                                        </form>#}
                         </nav>
                     </header>
                 </div>
             </div>
         </header>
-        <h1>Книги</h1>
-        <div><ul>
-            <div>
-                <table class="table table-bordered"><tbody>
-                    <tr>
-                        <th>Название</th>
-                        <th>Авторы</th>
-                        <th>Стоимость</th>
-                        <th>Издательство</th>
-                        <th>Год издания</th>
-                        <th>Количество страниц</th>
-                        <th>Количество экзмепляров</th>
-                        <th>УДК</th>
-                        <th>ББК</th>
-                        <th>Колючевые слова</th>
-                        <th>Краткое описание</th>
-                        {% if request.user.is_superuser %}
-                            <th>Удаление</th>
-                        {% endif %}
-                    </tr>
-                    {% for todolist in List_todo %}
-                    <tr>
-                         <td>{{ todolist.name }}</td>
-                        <td>{{ todolist.authors }}</td>
-                        <td>{{ todolist.cost }}</td>
-                        <td>{{ todolist.publishing_house }}</td>
-                        <td>{{ todolist.year_of_publishing }}</td>
-                        <td>{{ todolist.number_of_pages }}</td>
-                        <td>{{ todolist.number_of_copies }}</td>
-                        <td>{{ todolist.udc }}</td>
-                        <td>{{ todolist.bbk }}</td>
-                        <td>{{ todolist.keywords }}</td>
-                        <td>{{ todolist.short_description }}</td>
-                        {% if request.user.is_superuser %}
-                            <form action="deleteBooks" class="form-control" enctype="multipart/form-data" method="POST">
-                            {% csrf_token %}
-                            <td>
-                                <input type="`text`" name="id_del" value="{{ todolist.id }}" disable hidden>
-                                <input type="text" name="date2" value="{{ todolist.date }}" disable hidden>
-{#                              <input type="text" name="status1" value="{{ templates.status1 }}" disable hidden>#}
-                                <input type="submit" name="delete" value="Удалить">
-                            </td>
-                            </form>
-                        {% endif %}
-                    </tr>
-                    {% endfor %}
-                </tbody></table>
-            </div>
-        </ul>
-        </div>
-            <h3>Добавить книгу</h3>
-        <div class="row">
-            <div class="col-5">
-                <form method="post" class= "form-control">
-                    {% csrf_token %}
-                    {% bootstrap_form create_form layout='horizontal' %}
-                    {% buttons %}
-                    <input class="btn btn-primary" type="submit" value="Отправить">
-                    {% endbuttons %}
-                </form>
-            </div>
-        </div>
-    </body>
+        <h1>Авторизация</h1>
+    <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+        <table>
+            <tr>
+              <td>{{ form.username.label_tag }}</td>
+              <td>{{ form.username }}</td>
+            </tr>
+
+            <tr>
+              <td>{{ form.password.label_tag }}</td>
+              <td>{{ form.password }}</td>
+            </tr>
+        </table>
+
+        <input type="submit" value="Войти" />
+        <input type="hidden" name="next" value="{{ next }}" />
+    </form>
+
+    {# Assumes you setup the password_reset view in your URLconf #}
+    <p><a href="{% url 'password_reset' %}">Забыли пароль?</a></p>
+
+</body>
 </html>

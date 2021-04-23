@@ -4,8 +4,10 @@ from django.views import View
 import datetime
 from django.shortcuts import redirect
 from .models import Formalization, Request, Clients, Books
+from .forms import UserRegistration
 from django.db.models import Q
 from django.contrib import messages
+from django.shortcuts import render
 from django.db.models import F
 
 
@@ -35,6 +37,19 @@ def index(request):
         'List_todo': q,
         'create_form': form
     })
+
+
+def deleteBooks(request):
+    w = models.Books.objects.get(id = int(request.POST['id_del']))
+    form = forms.TodoForm(request.POST)
+    ss = Books._meta._get_fields()
+    # print('ss', ss)
+    if request.method == 'POST':
+        models.Books.objects.filter(id = int(request.POST['id_del'])).delete()
+        # w =models.Formalization.objects.get(id = int(request.POST['id_del']))
+
+    w = models.Books.objects.all()
+    return redirect('book')
 
 
 def searchBooks(request):
@@ -81,22 +96,35 @@ def book(request):
     })
 
 
+def deleteClient(request):
+    w = models.Clients.objects.get(id = int(request.POST['id_del']))
+    form = forms.TodoFormCl(request.POST)
+    ss = Clients._meta._get_fields()
+    # print('ss', ss)
+    if request.method == 'POST':
+        models.Clients.objects.filter(id = int(request.POST['id_del'])).delete()
+        # w =models.Formalization.objects.get(id = int(request.POST['id_del']))
+
+    w = models.Clients.objects.all()
+    return redirect('clients')
+
+
 def searchClients(request):
     # mod = Formalization.objects.all()
     form = forms.TodoFormCl()
     if request.GET.keys():
-        print('dGGG11111')
+        # print('dGGG11111')
         if request.GET.get('searchCl') != ' ':
-            print('dGGG22222')
+            # print('dGGG22222')
             keyword = str(request.GET.get('searchCl')).lower().strip()
             mod = Clients.objects.filter(Q(surname__icontains=keyword) | Q(surname__startswith=keyword) | Q(name__contains=keyword) | Q(name__startswith=keyword) | Q(residence_address__contains=keyword) | Q(residence_address__startswith=keyword) | Q(telephone__contains=keyword) | Q(telephone__startswith=keyword)).all()
-            print(mod)
+            # print(mod)
             return render(request, 'clients.html', {
                 'title': 'Клиенты',
                 'create_form1': form,
                 'List_todo1': mod,
             })
-            print('111111')
+            # print('111111')
         else:
             return redirect('clients')  #
     else:
@@ -124,6 +152,19 @@ def clients(request):
     })
 
 
+def deleteRequest(request):
+    w = models.Request.objects.get(id = int(request.POST['id_del']))
+    form = forms.TodoFormR(request.POST)
+    ss = Request._meta._get_fields()
+    print('ss', ss)
+    if request.method == 'POST':
+        models.Request.objects.filter(id = int(request.POST['id_del'])).delete()
+        # w =models.Request.objects.get(id = int(request.POST['id_del']))
+
+    w = models.Request.objects.all()
+    return redirect('request')
+
+
 def updateRequest(request): # вот это метод для обновления данных
     # 1. получаем какой-то реквест (в реквесте необходим id)
     # 2. делаем запрос в базу данных, и получаем строку по id
@@ -142,7 +183,7 @@ def updateRequest(request): # вот это метод для обновлени
         models.Request.objects.filter(id = int(request.POST['id_post'])).update(application_status = application_status_id)
         w = models.Request.objects.get(id=int(request.POST['id_post']))
 
-    w = models.Formalization.objects.all()
+    w = models.Request.objects.all()
     return redirect('request')
 
 
@@ -188,6 +229,19 @@ def request(request):
             'List_todo2': d,
             'create_form2': form
     })
+
+
+def deleteFormalization(request):
+    w = models.Formalization.objects.get(id = int(request.POST['id_del']))
+    form = forms.TodoFormF(request.POST)
+    ss = Formalization._meta._get_fields()
+    # print('ss', ss)
+    if request.method == 'POST':
+        models.Formalization.objects.filter(id = int(request.POST['id_del'])).delete()
+        # w =models.Formalization.objects.get(id = int(request.POST['id_del']))
+
+    w = models.Formalization.objects.all()
+    return redirect('formalization')
 
 
 def updateFormalization(request): # вот это метод для обновления данных
@@ -248,37 +302,41 @@ def quantityFormalization(request):
     if request.method == 'POST':
         f = Books.objects.filter(id=idd).first()
         ff = forms.TodoFormF(request.POST)
-        if f is not None and ff.is_valid():  # & (f.number_of_copies != 0):
-            if (f.number_of_copies != 0) and (f.number_of_copies > 0):
-                ss = Books._meta._get_fields()
-                ss1 = Formalization._meta._get_fields()
-                #количество экземпляров
-                f.number_of_copies -= int(quantity1)
-                #стоимость
-                cost = f.cost
-                total_cost = cost * quantity1
-                f.save()
-                models.Formalization.objects.create(
-                    books=ff.cleaned_data['books'],
-                    quantity=ff.cleaned_data['quantity'],
-                    cost=cost,
-                    total_cost=total_cost,
-                    client=ff.cleaned_data['client'],
-                    employee=ff.cleaned_data['employee'],
-                    status=ff.cleaned_data['status'],
-                    date=formatDateForPython(date_in)
-                )
-                print('dsd', ff)
-                # w = models.Request.objects.get(id=int(request.POST['id_post']))
-                w = models.Formalization.objects.all()
-                # createFormalization(request)
+        if (f.number_of_copies > quantity1):
+            if f is not None and ff.is_valid():  # & (f.number_of_copies != 0):
+                if (f.number_of_copies != 0) and (f.number_of_copies > 0) and (f.number_of_copies != [-1]):
+                    ss = Books._meta._get_fields()
+                    ss1 = Formalization._meta._get_fields()
+                    #количество экземпляров
+                    f.number_of_copies -= int(quantity1)
+                    #стоимость
+                    cost = f.cost
+                    total_cost = cost * quantity1
+                    f.save()
+                    models.Formalization.objects.create(
+                        books=ff.cleaned_data['books'],
+                        quantity=ff.cleaned_data['quantity'],
+                        cost=cost,
+                        total_cost=total_cost,
+                        client=ff.cleaned_data['client'],
+                        employee=ff.cleaned_data['employee'],
+                        status=ff.cleaned_data['status'],
+                        date=formatDateForPython(date_in)
+                    )
+                    print('dsd', ff)
+                    # w = models.Request.objects.get(id=int(request.POST['id_post']))
+                    w = models.Formalization.objects.all()
+                    # createFormalization(request)
 
-                return redirect('formalization')
+                    return redirect('formalization')
 
+                else:
+                    messages.error(request, 'Книги нет в наличии', extra_tags='safe')
             else:
                 messages.error(request, 'Книги нет в наличии', extra_tags='safe')
         else:
-            messages.error(request, 'Книги нет в наличии1', extra_tags='safe')
+            messages.error(request, 'Количество книг не такое большое', extra_tags='safe')
+
         return redirect('formalization')
 
     return redirect('formalization')
@@ -320,3 +378,63 @@ def formatDateForPython(date_in):
     date_processing = [int(v) for v in date_processing]
     date_out = datetime.datetime(*date_processing)
     return str(date_out)
+
+
+def login(request):
+    return render(request, 'registration/login.html', {'title': 'Авторизация'})
+
+
+def logout(request):
+    return render(request, 'registration/logged_out.html', {'title': 'Выход'})
+    # redirect(request, 'index.html')
+
+
+def userRegister(request):
+    #для добавления данных о сотруднике
+    form = forms.TodoFormE(request.POST)
+    if form.is_valid():
+        # if request.GET.get('searchF') != '':
+        #     print(1, searchF)
+        models.Employee.objects.create(
+            surname=form.cleaned_data['surname'],
+            name=form.cleaned_data['name'],
+            telephone=form.cleaned_data['telephone'],
+            residence_address=form.cleaned_data['residence_address'],
+        )
+    return redirect('register')
+
+
+def createRegister(request):
+    #для добавления сотрудника
+    if request.method == 'POST':
+        user_form = forms.UserRegistration(request.POST)
+        if user_form.is_valid():
+            # Create a new user object but avoid saving it yet
+            new_user = user_form.save(commit=False)
+            print('dd', new_user)
+            # Set the chosen password
+            new_user.set_password(user_form.cleaned_data['password'])
+            # Save the User object
+            new_user.save()
+            print('ss', new_user)
+            return render(request, 'register', {'new_user': new_user, 'user_form': user_form, 'title': 'Регистрация'})
+            messages5.error(request, 'Регистрация прошла успешно', extra_tags='safe')
+
+        return redirect('register')
+        # user_form = forms.UserRegistration()
+        # return render(request, 'register.html', {'user_form': user_form, 'title': 'Регистрация'})
+        # messages5.error(request, 'Регистрация НЕ прошла', extra_tags='safe')
+
+
+def register(request):
+    # вот это метод отображения страницы
+    # ни в коем случае здесь не применяй изменение, создание или удаление данных, только отображение страницы
+    # form = forms.TodoFormE()
+    # form2 = forms.UserRegistration()
+    user_form = forms.UserRegistration()
+    users_form = forms.TodoFormE()
+    return render(request, 'registration/register.html', {
+            'title': 'Регистрация',
+            'users_form': users_form,
+            'user_form': user_form,
+    })

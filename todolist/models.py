@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 import django_filters
 from django.forms import ModelForm
 
@@ -110,16 +111,3 @@ class MyDateTimeFeild(models.DateTimeField):
         td = float(value[-5:])/100
         timediff = timedelta(hours=td)
         return parse(value).replace(tzinfo=None) - timediff
-
-
-# class FormalizationF(django_filters.FilterSet):
-#     books = django_filters.CharFilter()
-#     quantity = django_filters.NumberFilter()
-#     client = django_filters.CharFilter()
-#     employee = django_filters.CharFilter()
-#     status = django_filters.CharFilter()
-#     date = django_filters.DateTimeFilter()
-#
-#     class Meta:
-#         model = Formalization
-#         fields = ['books', 'quantity', 'client', 'employee', 'status', 'date']
