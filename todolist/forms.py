@@ -68,12 +68,12 @@ class TodoFormE(forms.Form):
 
 
 class UserRegistration(UserCreationForm):
-    password = forms.CharField(label='Пароль', widget=forms.PasswordInput)
+    password1 = forms.CharField(label='Пароль', widget=forms.PasswordInput)
     password2 = forms.CharField(label='Повторный пароль', widget=forms.PasswordInput)
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'email')
+        fields = ('username', 'first_name', 'last_name', 'email')
 
 
 def clean_password2(self):

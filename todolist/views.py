@@ -3,7 +3,7 @@ from . import models, forms
 from django.views import View
 import datetime
 from django.shortcuts import redirect
-from .models import Formalization, Request, Clients, Books
+from .models import Formalization, Request, Clients, Books, User
 from .forms import UserRegistration
 from django.db.models import Q
 from django.contrib import messages
@@ -302,41 +302,42 @@ def quantityFormalization(request):
     if request.method == 'POST':
         f = Books.objects.filter(id=idd).first()
         ff = forms.TodoFormF(request.POST)
-        if f is not None and ff.is_valid():  # & (f.number_of_copies != 0):
-            if (f.number_of_copies != 0) and (f.number_of_copies > 0) and (f.number_of_copies != [-1]):
-                    ss = Books._meta._get_fields()
-                    ss1 = Formalization._meta._get_fields()
-                    #количество экземпляров
-                    f.number_of_copies -= int(quantity1)
-                    #стоимость
-                    cost = f.cost
-                    total_cost = cost * quantity1
-                    f.save()
-                    models.Formalization.objects.create(
-                        books=ff.cleaned_data['books'],
-                        quantity=ff.cleaned_data['quantity'],
-                        cost=cost,
-                        total_cost=total_cost,
-                        client=ff.cleaned_data['client'],
-                        employee=ff.cleaned_data['employee'],
-                        status=ff.cleaned_data['status'],
-                        date=formatDateForPython(date_in)
-                    )
-                    print('dsd', ff)
-                    # w = models.Request.objects.get(id=int(request.POST['id_post']))
-                    w = models.Formalization.objects.all()
-                    # createFormalization(request)
+        if f is not None and ff.is_valid():
+                if (f.number_of_copies != 0) and (f.number_of_copies > 0) and (f.number_of_copies != [-1]):
+                    if quantity1 <= f.number_of_copies:
+                        ss = Books._meta._get_fields()
+                        ss1 = Formalization._meta._get_fields()
+                        #количество экземпляров
+                        f.number_of_copies -= int(quantity1)
+                        #стоимость
+                        cost = f.cost
+                        total_cost = cost * quantity1
+                        f.save()
+                        models.Formalization.objects.create(
+                            books=ff.cleaned_data['books'],
+                            quantity=ff.cleaned_data['quantity'],
+                            cost=cost,
+                            total_cost=total_cost,
+                            client=ff.cleaned_data['client'],
+                            employee=ff.cleaned_data['employee'],
+                            status=ff.cleaned_data['status'],
+                            date=formatDateForPython(date_in)
+                        )
+                        # print('dsd', ff)
+                        # w = models.Request.objects.get(id=int(request.POST['id_post']))
+                        w = models.Formalization.objects.all()
+                        # createFormalization(request)
 
-                    return redirect('formalization')
-
-            else:
+                        return redirect('formalization')
+                    else:
+                        messages.error(request, 'Превышение количества имеющихся книг', extra_tags='safe')
+                        return redirect('formalization')
+                else:
                     messages.error(request, 'Книги нет в наличии', extra_tags='safe')
+                    return redirect('formalization')
         else:
-                messages.error(request, 'Книги нет в наличии', extra_tags='safe')
-        # else:
-        #     messages.error(request, 'Количество книг не такое большое', extra_tags='safe')
-
-        return redirect('formalization')
+            messages.error(request, 'Книги нет в наличии', extra_tags='safe')
+            return redirect('formalization')
 
     return redirect('formalization')
 
@@ -391,16 +392,32 @@ def logout(request):
 def userRegister(request):
     #для добавления данных о сотруднике
     form = forms.TodoFormE(request.POST)
+    surname1 = request.POST['surname']
+    name1 = request.POST['name']
+    telephone1 = request.POST['telephone']
+    residence_address = request.POST['residence_address']
     if form.is_valid():
-        # if request.GET.get('searchF') != '':
-        #     print(1, searchF)
-        models.Employee.objects.create(
-            surname=form.cleaned_data['surname'],
-            name=form.cleaned_data['name'],
-            telephone=form.cleaned_data['telephone'],
-            residence_address=form.cleaned_data['residence_address'],
-        )
+        ss = models.Employee.objects.filter(surname=surname1).first()
+        ss1 = models.Employee.objects.filter(name=name1).first()
+        st = models.Employee.objects.filter(telephone=telephone1).first()
+        if not st:
+            if not (ss and ss1):
+                models.Employee.objects.create(
+                    surname=form.cleaned_data['surname'],
+                    name=form.cleaned_data['name'],
+                    telephone=form.cleaned_data['telephone'],
+                    residence_address=form.cleaned_data['residence_address'],
+                )
+                messages.error(request, 'Данные о сотуднике успешно добавлены', extra_tags='safe')
+                return redirect('register')
+            else:
+                messages.error(request, 'Информация не добавлена. Сотрудник с таким именем уже занесен', extra_tags='safe')
+                return redirect('register')
+        else:
+            messages.error(request, 'Информация не добавлена. Сотрудник с таким номером уже занесен', extra_tags='safe')
+            return redirect('register')
     return redirect('register')
+
 
 
 def createRegister(request):
@@ -408,21 +425,35 @@ def createRegister(request):
     if request.method == 'POST':
         user_form = forms.UserRegistration(request.POST)
         users_form = forms.TodoFormE()
-        if user_form.is_valid():
-            # Create a new user object but avoid saving it yet
-            new_user = user_form.save(commit=False)
-            # Set the chosen password
-            new_user.set_password(user_form.cleaned_data['password'])
-            # Save the User object
-            new_user.save()
-            # return render(request, 'registration/register.html', {'new_user': new_user, 'user_form': user_form, 'users_form': users_form, 'title': 'Регистрация'})
-            # messages5.error(request, 'Регистрация прошла успешно', extra_tags='safe')
-
-        return redirect('register')
-
-        # user_form = forms.UserRegistration()
-        # return render(request, 'register.html', {'user_form': user_form, 'title': 'Регистрация'})
-        # messages5.error(request, 'Регистрация НЕ прошла', extra_tags='safe')
+        password2 = request.POST['password2']
+        password0 = request.POST['password1']
+        username1 = request.POST['username']
+        email1 = request.POST['email']
+        # ss1 = models.User._meta._get_fields()
+        # # f = Books.objects.filter(id=idd).first()
+        ss = User.objects.filter(email=email1).first()
+        ss2 = User.objects.filter(username=username1).filter()
+        if not ss2:
+            if not ss:
+                if password0 == password2:
+                    print('3')
+                    # Create a new user object but avoid saving it yet
+                    new_user = user_form.save(commit=False)
+                    # Set the chosen password
+                    new_user.set_password(user_form.cleaned_data['password1'])
+                    # Save the User object
+                    new_user.save()
+                    messages.error(request, 'Успешно зарестрирован', extra_tags='safe')
+                    return redirect('register')
+                else:
+                    messages.error(request, 'Не зарегестрирован. Пароли не совпадают', extra_tags='safe')
+                    return redirect('register')
+            else:
+                messages.error(request, 'Не зарегестрирован. Пользователь с таким email уже существует', extra_tags='safe')
+                return redirect('register')
+        else:
+            messages.error(request, 'Не зарегестрирован. Пользователь с таким логином уже существует', extra_tags='safe')
+            return redirect('register')
 
 
 def register(request):
