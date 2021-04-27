@@ -1,5 +1,6 @@
 {% load static %}
 {% load bootstrap4 %}
+{% if request.user.is_authenticated %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -160,3 +161,4 @@
         </div>
     </body>
 </html>
+{% endif %}

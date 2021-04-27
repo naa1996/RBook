@@ -87,6 +87,9 @@ def book(request):
                 keywords=form.cleaned_data['keywords'],
                 short_description=form.cleaned_data['short_description'],
             )
+            messages.error(request, 'Книга успешно добавлена ', extra_tags='safe222')
+            return redirect('book')
+
     else:
         form = forms.TodoForm()
     return render(request, 'book.html', {
@@ -126,9 +129,9 @@ def searchClients(request):
             })
             # print('111111')
         else:
-            return redirect('clients')  #
+            return redirect('clients')
     else:
-        return redirect('clients')  #
+        return redirect('clients')
 
 
 def clients(request):
@@ -143,6 +146,8 @@ def clients(request):
                 residence_address=form.cleaned_data['residence_address'],
                 telephone=form.cleaned_data['telephone'],
             )
+            messages.error(request, 'Клиент успешно добавлен ', extra_tags='safe3')
+            return redirect('clients')
     else:
         form = forms.TodoFormCl()
     return render(request, 'clients.html', {
@@ -222,6 +227,8 @@ def request(request):
                 number_of_copies=form.cleaned_data['number_of_copies'],
                 date=formatDateForPython(date_in)
             )
+            messages.error(request, 'Заявка успешно добавлена', extra_tags='safe3')
+            return redirect('request')
     else:
         form = forms.TodoFormR()
     return render(request, 'request.html', {
@@ -327,7 +334,7 @@ def quantityFormalization(request):
                         # w = models.Request.objects.get(id=int(request.POST['id_post']))
                         w = models.Formalization.objects.all()
                         # createFormalization(request)
-
+                        messages.error(request, 'Книга добавлена на оформление', extra_tags='safe')
                         return redirect('formalization')
                     else:
                         messages.error(request, 'Превышение количества имеющихся книг', extra_tags='safe')
@@ -381,12 +388,37 @@ def formatDateForPython(date_in):
 
 
 def login(request):
+    # username = request.POST['username']
+    # password = request.POST['password']
+    # print(username)
+    # print(password)
     return render(request, 'registration/login.html', {'title': 'Авторизация'})
+    # username1 = User.objects.filter(username=username).first()
+    # password1 = User.objects.filter(password=password).first()
+    # if not (username1 and password1):
+    # # if not username1:
+    # #     print('ss')
+    # #     if not password1:
+    # #         print('ss')
+    #     return redirect('index')
+    #     print('ss')
+            # return render(request, 'registration/login.html', {'title': 'Авторизация'})
+
+        # else:
+        #     print('ss1')
+        #     messages.error(request, 'Данные о сотуднике успешно добавлены', extra_tags='safe')
+        #     return redirect('login')
+    # else:
+    #     print('ss2')
+    #     messages.error(request, 'Не авторизован', extra_tags='safe')
+    #     return redirect('login')
+
+
 
 
 def logout(request):
+    print('ss')
     return render(request, 'registration/logged_out.html', {'title': 'Выход'})
-    # redirect(request, 'index.html')
 
 
 def userRegister(request):
@@ -417,7 +449,6 @@ def userRegister(request):
             messages.error(request, 'Информация не добавлена. Сотрудник с таким номером уже занесен', extra_tags='safe')
             return redirect('register')
     return redirect('register')
-
 
 
 def createRegister(request):

@@ -1,5 +1,6 @@
 {% load static %}
 {% load bootstrap4 %}
+{% if request.user.is_authenticated %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -85,7 +86,7 @@
                 <div class="col-5">
                 <h2>Заполнение данных</h2>
 
-                    <form method="post" class= "form-control" action="userRegister" value="" style="">
+                    <form method="post" class= "form-control" action="userRegister" value="">
                         {% csrf_token %}
                         {% bootstrap_form users_form layout='horizontal' %}
                         {% buttons %}
@@ -107,3 +108,4 @@
     <br><br>
     </body>
 </html>
+{% endif %}

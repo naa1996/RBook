@@ -74,26 +74,41 @@
             </div>
         </header>
         <h1>Авторизация</h1>
-    <form method="post" action="{% url 'login' %}">
-        {% csrf_token %}
-        <table>
-            <tr>
-              <td>{{ form.username.label_tag }}</td>
-              <td>{{ form.username }}</td>
-            </tr>
+        <div class="row">
+            <div class="col-5">
+                <form method="post" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    <table>
+                        <tr>
+                          <td>{{ form.username.label_tag }}</td>
+                          <td>{{ form.username }}</td>
+                        </tr>
+                        <tr>
+                          <td>{{ form.password.label_tag }}</td>
+                          <td>{{ form.password }}</td>
+                        </tr>
+                    </table>
+                    <input type="submit" value="Войти" />
+                    <input type="hidden" name="next" value="{{ next }}" />
+                </form>
+                    {% if form.non_field_errors %}
+                        <ul class='form-errors'>
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                                {% endfor %}
+                        </ul>
+{#                    {% for field, errors in form.error.items %}#}
+{#                        {% for error in errors %}#}
+{#                            <div class="massage">{{ error }}</div>#}
+{#                        {% endfor %}#}
+                    {% endif %}
 
-            <tr>
-              <td>{{ form.password.label_tag }}</td>
-              <td>{{ form.password }}</td>
-            </tr>
-        </table>
-
-        <input type="submit" value="Войти" />
-        <input type="hidden" name="next" value="{{ next }}" />
-    </form>
-
-    {# Assumes you setup the password_reset view in your URLconf #}
-    <p><a href="{% url 'password_reset' %}">Забыли пароль?</a></p>
-
+            </div>
+{#                {% for massage in messages %}#}
+{#                <ul class="{{ massage.tags }}">#}
+{#                    {% if 'safe' in massage.tags %}{{ massage|safe }}{% else %}{{ massage }}{% endif %}#}
+{#                </ul>#}
+{#            {% endfor %}#}
+        </div>
 </body>
 </html>

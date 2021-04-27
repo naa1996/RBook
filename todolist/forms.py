@@ -81,10 +81,3 @@ def clean_password2(self):
     if cd['password'] != cd['password']:
         raise forms.ValidationError('Пароли не совпадают')
     return cd['password']
-
-
-# class TodoFormSt(forms.Form):
-#     status = forms.ModelChoiceField(models.ClearanceStatus.objects.all())
-
-    # class Meta:
-    #     fields = ('status')
